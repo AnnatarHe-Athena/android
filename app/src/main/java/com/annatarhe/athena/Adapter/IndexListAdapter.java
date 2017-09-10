@@ -1,14 +1,12 @@
-package com.annatarhe.athena.Adpter;
+package com.annatarhe.athena.Adapter;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.annatarhe.athena.R;
 import com.squareup.picasso.Picasso;
@@ -41,7 +39,7 @@ public class IndexListAdapter extends RecyclerView.Adapter<IndexListAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Log.i("info", data.get(position));
-//        Picasso.with(context).load(data.get(position)).into(holder.imageView);
+        Picasso.with(context).load(data.get(position)).into(holder.imageView);
     }
 
     @Override

@@ -3,6 +3,9 @@ package com.annatarhe.athena;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,8 +16,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.annatarhe.athena.Adapter.IndexListAdapter;
+
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private RecyclerView recyclerView;
+    private RecyclerView.LayoutManager layoutManager;
+    private RecyclerView.Adapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +51,34 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        this.initData();
+        this.initView();
     }
+
+    private void initData() {
+        layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        adapter = new IndexListAdapter(MainActivity.this, getData());
+    }
+
+    private void initView() {
+        recyclerView = (RecyclerView) findViewById(R.id.indexListView);
+        // 设置布局管理器
+        recyclerView.setLayoutManager(this.layoutManager);
+        // 设置adapter
+        recyclerView.setAdapter(adapter);
+        Log.i("i", "inited recyclerview ");
+    }
+
+    private ArrayList<String> getData() {
+        ArrayList<String> data = new ArrayList<>();
+        for(int i = 0; i < 20; i++) {
+            data.add("http://via.placeholder.com/350x150");
+        }
+
+        return data;
+    }
+
 
     @Override
     public void onBackPressed() {
