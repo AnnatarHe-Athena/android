@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.annatarhe.athena.Model.Config;
 import com.annatarhe.athena.R;
 
 /**
@@ -49,7 +50,6 @@ public class AuthActivity extends AppCompatActivity {
 
                 // 跳新的profile页面
                 finish();
-
             }
         });
     }
