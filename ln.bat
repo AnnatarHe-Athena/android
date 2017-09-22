@@ -1,0 +1,1 @@
+mklink /J D:\github\douban-girls\android\app\src\main\graphql\com.annatarhe.athena D:\github\douban-girls\schema

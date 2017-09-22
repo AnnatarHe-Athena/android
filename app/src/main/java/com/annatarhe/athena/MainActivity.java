@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.annatarhe.athena.Adapter.IndexListAdapter;
+import com.annatarhe.athena.Model.Config;
 
 import java.util.ArrayList;
 
@@ -55,6 +56,12 @@ public class MainActivity extends AppCompatActivity
 
         this.initData();
         this.initView();
+
+        this.loadCategories();
+    }
+
+    // TODO: loadCategories from graphql server
+    private void loadCategories() {
     }
 
     private void initData() {
