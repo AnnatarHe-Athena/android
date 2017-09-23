@@ -1,5 +1,7 @@
 package com.annatarhe.athena.Model;
 
+import android.util.Log;
+
 import com.annatarhe.athena.BuildConfig;
 import com.apollographql.apollo.ApolloClient;
 
@@ -21,17 +23,23 @@ import okhttp3.Response;
 public class Config {
     public static String token = "";
 
-    private static String serverUrl = BuildConfig.DEBUG ? "http://localhost:9000/graphql/v1" : "https://api.dbg.annatarhe.com/graphql/v1";
+    private static String serverUrl = BuildConfig.DEBUG ?
+            "http://192.168.0.112:9000/graphql/v1" :
+            "https://api.dbg.annatarhe.com/graphql/v1";
 
     public static ApolloClient getApolloClient() {
+
+        OkHttpClient okHttp = new OkHttpClient.Builder().addNetworkInterceptor(new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Log.i("apollo", Config.token);
+                return chain.proceed(chain.request().newBuilder().header("athena-token", Config.token).build());
+            }
+        }).build();
+
         return ApolloClient.builder()
                 .serverUrl(serverUrl)
-                .okHttpClient(new OkHttpClient.Builder().addNetworkInterceptor(new Interceptor() {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        return chain.proceed(chain.request().newBuilder().header("athena-token", Config.token).build());
-                    }
-                }).build())
+                .okHttpClient(okHttp)
                 .build();
     }
 }

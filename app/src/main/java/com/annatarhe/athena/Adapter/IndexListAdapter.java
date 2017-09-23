@@ -8,10 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.annatarhe.athena.FetchGirlsQuery;
+import com.annatarhe.athena.InitialQuery;
 import com.annatarhe.athena.R;
+import com.annatarhe.athena.fragment.FetchGirls;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Annatarhe on 9/10/2017.
@@ -21,10 +25,10 @@ import java.util.ArrayList;
 
 public class IndexListAdapter extends RecyclerView.Adapter<IndexListAdapter.ViewHolder> {
 
-    private ArrayList<String> data;
+    private List<FetchGirlsQuery.Girl> data;
     private Context context;
 
-    public IndexListAdapter(Context context, ArrayList<String> data) {
+    public IndexListAdapter(Context context, List<FetchGirlsQuery.Girl> data) {
         this.data = data;
         this.context = context;
     }
@@ -38,13 +42,13 @@ public class IndexListAdapter extends RecyclerView.Adapter<IndexListAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Log.i("info", data.get(position));
-        Picasso.with(context).load(data.get(position)).into(holder.imageView);
+        Log.i("info", data.get(position).fragments().fetchGirls().img());
+        Picasso.with(context).load(data.get(position).fragments().fetchGirls().img()).into(holder.imageView);
     }
 
     @Override
     public int getItemCount() {
-        return data.size();
+        return data != null ? data.size() : 0;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

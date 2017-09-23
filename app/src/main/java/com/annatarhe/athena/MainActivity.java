@@ -1,5 +1,6 @@
 package com.annatarhe.athena;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -18,11 +19,24 @@ import android.view.MenuItem;
 
 import com.annatarhe.athena.Adapter.IndexListAdapter;
 import com.annatarhe.athena.Model.Config;
+import com.annatarhe.athena.ViewController.AuthActivity;
+import com.annatarhe.athena.fragment.FetchGirls;
+import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Nonnull;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private List<InitCategoriesQuery.Category> categories;
+    private List<FetchGirlsQuery.Girl> cells;
+
+    private int currentCategory = -1;
 
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
@@ -62,11 +76,26 @@ public class MainActivity extends AppCompatActivity
 
     // TODO: loadCategories from graphql server
     private void loadCategories() {
+        Config.getApolloClient().query(InitCategoriesQuery.builder().build()).enqueue(new ApolloCall.Callback<InitCategoriesQuery.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<InitCategoriesQuery.Data> response) {
+                categories = response.data().categories();
+                Log.i("apollo", categories.toString());
+
+                invalidateOptionsMenu();
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                e.getStackTrace();
+                Log.i("apollo", e.toString());
+            }
+        });
     }
 
     private void initData() {
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        adapter = new IndexListAdapter(MainActivity.this, getData());
+        adapter = new IndexListAdapter(MainActivity.this, this.cells);
     }
 
     private void initView() {
@@ -78,13 +107,66 @@ public class MainActivity extends AppCompatActivity
         Log.i("i", "inited recyclerview ");
     }
 
-    private ArrayList<String> getData() {
-        ArrayList<String> data = new ArrayList<>();
-        for(int i = 0; i < 20; i++) {
-            data.add("http://via.placeholder.com/350x150");
+    private void getData(final Boolean loadMore) {
+
+        Config.getApolloClient().query(
+                FetchGirlsQuery.builder()
+                        .from(currentCategory)
+                        .take(20)
+                        .offset((loadMore && cells != null) ? cells.size() :0)
+                        .build()
+        ).enqueue(new ApolloCall.Callback<FetchGirlsQuery.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<FetchGirlsQuery.Data> response) {
+                if (loadMore) {
+                    cells.addAll(response.data().girls());
+                } else {
+                    cells = response.data().girls();
+                }
+
+                Log.i("apollo", response.data().girls().toString());
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+                Snackbar.make(findViewById(R.id.indexListView), "fail load images", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.i("i", "on start");
+        this.checkLogin();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.i("i", "on restart");
+        this.checkLogin();
+    }
+
+    private void checkLogin() {
+
+        // TODO: delete me for production
+        if (Config.token.isEmpty()) {
+            return;
         }
 
-        return data;
+        Intent intent = new Intent(MainActivity.this, AuthActivity.class);
+
+        startActivity(intent);
     }
 
 
@@ -102,6 +184,15 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
+        if (categories == null) {
+            return true;
+        }
+
+        for (InitCategoriesQuery.Category category : categories) {
+            int id = Integer.parseInt(category.id());
+            menu.add(1, id, id, category.name());
+        }
         return true;
     }
 
@@ -112,10 +203,10 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        // set current category
+        this.currentCategory = id;
+
+        this.getData(false);
 
         return super.onOptionsItemSelected(item);
     }
