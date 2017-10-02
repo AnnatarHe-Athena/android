@@ -1,15 +1,24 @@
 package com.annatarhe.athena.ViewController;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.annatarhe.athena.MainActivity;
 import com.annatarhe.athena.Model.Config;
 import com.annatarhe.athena.R;
+import com.annatarhe.athena.queries.AuthQuery;
+import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by Annatarhe on 9/13/2017.
@@ -24,6 +33,7 @@ public class AuthActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.auth);
 
+        initAuthBtn();
     }
     private void initAuthBtn() {
         Button authBtn = (Button) findViewById(R.id.authBtn);
@@ -39,7 +49,7 @@ public class AuthActivity extends AppCompatActivity {
                     Toast.makeText(AuthActivity.this, "email is invalid", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                if (password.length() < 6) {
+                if (passwordTxt.length() < 6) {
                     Toast.makeText(AuthActivity.this, "password should more than 6", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -48,8 +58,32 @@ public class AuthActivity extends AppCompatActivity {
 
                 Toast.makeText(AuthActivity.this, "auth pass. StartActivity now", Toast.LENGTH_SHORT).show();
 
-                // 跳新的profile页面
-                finish();
+                Config.getApolloClient().query(
+                        AuthQuery.builder().email(emailTxt).password(passwordTxt).build()
+                ).enqueue(new ApolloCall.Callback<AuthQuery.Data>() {
+                    @Override
+                    public void onResponse(@Nonnull Response<AuthQuery.Data> response) {
+                        Config.token = response.data().auth().token();
+                        Config.userID = Integer.parseInt(response.data().auth().id());
+
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(AuthActivity.this, "auth success", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void onFailure(@Nonnull ApolloException e) {
+
+                        Toast.makeText(AuthActivity.this, "auth fail", Toast.LENGTH_SHORT).show();
+
+                    }
+                });
             }
         });
     }

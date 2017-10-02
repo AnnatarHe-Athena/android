@@ -21,7 +21,9 @@ import okhttp3.Response;
 
 
 public class Config {
-    public static String token = "";
+    public static volatile String token = "6|66170ced70baf97ac5866193ad05fed7";
+//    6|66170ced70baf97ac5866193ad05fed7
+    public static int userID = -1;
 
     private static String serverUrl = BuildConfig.DEBUG ?
             "http://192.168.0.112:9000/graphql/v1" :

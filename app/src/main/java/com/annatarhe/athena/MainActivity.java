@@ -27,6 +27,7 @@ import com.apollographql.apollo.exception.ApolloException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
@@ -34,11 +35,10 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private List<InitCategoriesQuery.Category> categories;
-    private List<FetchGirlsQuery.Girl> cells;
+    private List<FetchGirlsQuery.Girl> cells = new ArrayList<FetchGirlsQuery.Girl>();
 
     private int currentCategory = -1;
 
-    private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerView.Adapter adapter;
 
@@ -95,11 +95,11 @@ public class MainActivity extends AppCompatActivity
 
     private void initData() {
         layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        adapter = new IndexListAdapter(MainActivity.this, this.cells);
+        adapter = new IndexListAdapter(MainActivity.this, cells);
     }
 
     private void initView() {
-        recyclerView = (RecyclerView) findViewById(R.id.indexListView);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.indexListView);
         // 设置布局管理器
         recyclerView.setLayoutManager(this.layoutManager);
         // 设置adapter
@@ -118,13 +118,13 @@ public class MainActivity extends AppCompatActivity
         ).enqueue(new ApolloCall.Callback<FetchGirlsQuery.Data>() {
             @Override
             public void onResponse(@Nonnull Response<FetchGirlsQuery.Data> response) {
-                if (loadMore) {
-                    cells.addAll(response.data().girls());
-                } else {
-                    cells = response.data().girls();
+                if (!loadMore) {
+                    if (cells != null) {
+                        cells.clear();
+                    }
                 }
 
-                Log.i("apollo", response.data().girls().toString());
+                cells.addAll(response.data().girls());
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -150,22 +150,23 @@ public class MainActivity extends AppCompatActivity
         this.checkLogin();
     }
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.i("i", "on restart");
-        this.checkLogin();
-    }
+//    @Override
+//    protected void onRestart() {
+//        super.onRestart();
+//        Log.i("i", "on restart");
+//        this.checkLogin();
+//    }
 
     private void checkLogin() {
 
         // TODO: delete me for production
-        if (Config.token.isEmpty()) {
+        if (!Config.token.equals("")) {
             return;
         }
 
         Intent intent = new Intent(MainActivity.this, AuthActivity.class);
 
+        // TODO: add return code
         startActivity(intent);
     }
 
