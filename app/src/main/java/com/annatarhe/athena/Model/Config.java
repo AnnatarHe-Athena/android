@@ -21,15 +21,19 @@ import okhttp3.Response;
 
 
 public class Config {
-    public static volatile String token = "6|66170ced70baf97ac5866193ad05fed7";
+//    public static volatile String token = "6|66170ced70baf97ac5866193ad05fed7";
 //    6|66170ced70baf97ac5866193ad05fed7
     public static int userID = -1;
+    public static volatile String token = "";
 
-    private static String serverUrl = BuildConfig.DEBUG ?
-            "http://192.168.0.112:9000/graphql/v1" :
-            "https://api.dbg.annatarhe.com/graphql/v1";
+    private static String serverUrl = "https://api.dbg.annatarhe.com/graphql/v1";
+//    private static String serverUrl = BuildConfig.DEBUG ?
+//            "http://192.168.0.112:9000/graphql/v1" :
+//            "https://api.dbg.annatarhe.com/graphql/v1";
 
     public static ApolloClient getApolloClient() {
+
+        Log.i("token", Config.token);
 
         OkHttpClient okHttp = new OkHttpClient.Builder().addNetworkInterceptor(new Interceptor() {
             @Override

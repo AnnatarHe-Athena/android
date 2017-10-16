@@ -104,6 +104,32 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setLayoutManager(this.layoutManager);
         // 设置adapter
         recyclerView.setAdapter(adapter);
+        //recyclerview滚动监听
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            private int lastVisibleItem;
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                //0：当前屏幕停止滚动；1时：屏幕在滚动 且 用户仍在触碰或手指还在屏幕上；2时：随用户的操作，屏幕上产生的惯性滑动；
+                // 滑动状态停止并且剩余少于两个item时，自动加载下一页
+                if (
+                        newState == RecyclerView.SCROLL_STATE_IDLE &&
+                        lastVisibleItem + 2 >= layoutManager.getItemCount()
+                        ) {
+                    getData(true);
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                //获取加载的最后一个可见视图在适配器的位置。
+
+                lastVisibleItem = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition();
+            }
+        });
         Log.i("i", "inited recyclerview ");
     }
 
@@ -122,6 +148,10 @@ public class MainActivity extends AppCompatActivity
                     if (cells != null) {
                         cells.clear();
                     }
+                }
+
+                if (response.data().girls() == null) {
+                    return;
                 }
 
                 cells.addAll(response.data().girls());
