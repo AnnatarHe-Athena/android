@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -41,36 +42,49 @@ public class AuthActivity extends AppCompatActivity {
         final EditText password = (EditText) findViewById(R.id.auth_password);
         authBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 String emailTxt = email.getText().toString();
                 String passwordTxt = password.getText().toString();
 
+                Log.i("i", "click auth buuton");
+
                 if (!emailTxt.contains("@")) {
-                    Toast.makeText(AuthActivity.this, "email is invalid", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(view, "email is invalid", Snackbar.LENGTH_LONG).show();
                     return;
                 }
                 if (passwordTxt.length() < 6) {
-                    Toast.makeText(AuthActivity.this, "password should more than 6", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(view, "password should more than 6", Snackbar.LENGTH_LONG).show();
                     return;
                 }
 
-                // 请求后端接口
 
-                Toast.makeText(AuthActivity.this, "auth pass. StartActivity now", Toast.LENGTH_SHORT).show();
+                Log.i("i", "send request to backend");
 
                 Config.getApolloClient().query(
                         AuthQuery.builder().email(emailTxt).password(passwordTxt).build()
                 ).enqueue(new ApolloCall.Callback<AuthQuery.Data>() {
                     @Override
                     public void onResponse(@Nonnull Response<AuthQuery.Data> response) {
+
+                        if (response.data().auth() == null) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Snackbar.make(view, "backend error", Snackbar.LENGTH_LONG).show();
+                                }
+                            });
+                            return;
+                        }
+
                         Config.token = response.data().auth().token();
                         Config.userID = Integer.parseInt(response.data().auth().id());
 
+                        Log.i("token", response.data().auth().token());
 
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast.makeText(AuthActivity.this, "auth success", Toast.LENGTH_SHORT).show();
+                                Snackbar.make(view, "auth success", Snackbar.LENGTH_LONG).show();
                                 finish();
                             }
                         });
@@ -79,9 +93,12 @@ public class AuthActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(@Nonnull ApolloException e) {
-
-                        Toast.makeText(AuthActivity.this, "auth fail", Toast.LENGTH_SHORT).show();
-
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Snackbar.make(view, "backend error", Snackbar.LENGTH_LONG).show();
+                            }
+                        });
                     }
                 });
             }

@@ -196,6 +196,8 @@ public class MainActivity extends AppCompatActivity
 
         Intent intent = new Intent(MainActivity.this, AuthActivity.class);
 
+        Log.i("i", "ready to auth intent");
+
         // TODO: add return code
         startActivity(intent);
     }
