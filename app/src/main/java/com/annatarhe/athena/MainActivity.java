@@ -1,6 +1,7 @@
 package com.annatarhe.athena;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -16,9 +17,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.annatarhe.athena.Adapter.IndexListAdapter;
 import com.annatarhe.athena.Model.Config;
+import com.annatarhe.athena.ViewController.AboutActivity;
 import com.annatarhe.athena.ViewController.AuthActivity;
 import com.annatarhe.athena.fragment.FetchGirls;
 import com.apollographql.apollo.ApolloCall;
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity
 
     private int currentCategory = -1;
 
+    private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerView.Adapter adapter;
 
@@ -53,8 +57,8 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Snackbar.make(view, "Back to Top", Snackbar.LENGTH_LONG).show();
+                recyclerView.smoothScrollToPosition(0);
             }
         });
 
@@ -72,6 +76,11 @@ public class MainActivity extends AppCompatActivity
         this.initView();
 
         this.loadCategories();
+        this.setupOthers();
+    }
+
+    private void setupOthers() {
+
     }
 
     // TODO: loadCategories from graphql server
@@ -99,7 +108,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initView() {
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.indexListView);
+        recyclerView = (RecyclerView) findViewById(R.id.indexListView);
         // 设置布局管理器
         recyclerView.setLayoutManager(this.layoutManager);
         // 设置adapter
@@ -118,6 +127,7 @@ public class MainActivity extends AppCompatActivity
                         newState == RecyclerView.SCROLL_STATE_IDLE &&
                         lastVisibleItem + 2 >= layoutManager.getItemCount()
                         ) {
+                    Log.i("scroll", "loading more");
                     getData(true);
                 }
             }
@@ -143,23 +153,21 @@ public class MainActivity extends AppCompatActivity
                         .build()
         ).enqueue(new ApolloCall.Callback<FetchGirlsQuery.Data>() {
             @Override
-            public void onResponse(@Nonnull Response<FetchGirlsQuery.Data> response) {
+            public void onResponse(@Nonnull final Response<FetchGirlsQuery.Data> response) {
                 if (!loadMore) {
                     if (cells != null) {
                         cells.clear();
                     }
                 }
-
                 if (response.data().girls() == null) {
                     return;
                 }
-
                 cells.addAll(response.data().girls());
+                final String sizeMessage = "loaded data: " +  Integer.toString(response.data().girls().size()) + "rows";
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-
                         adapter.notifyDataSetChanged();
                     }
                 });
@@ -250,18 +258,23 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        switch (id) {
+            case R.id.nav_camera:
+                break;
+            case R.id.nav_gallery:
+                break;
+            case R.id.about_nav_btn:
+                Intent intent = new Intent(MainActivity.this, AboutActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.nav_slideshow:
+                break;
+            case R.id.nav_share:
+                break;
+            case R.id.nav_send:
+                break;
+            default:
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

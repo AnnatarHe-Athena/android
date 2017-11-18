@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import com.annatarhe.athena.FetchGirlsQuery;
 import com.annatarhe.athena.InitialQuery;
 import com.annatarhe.athena.R;
+import com.annatarhe.athena.Utils.Utils;
 import com.annatarhe.athena.fragment.FetchGirls;
 import com.squareup.picasso.Picasso;
 
@@ -42,8 +43,9 @@ public class IndexListAdapter extends RecyclerView.Adapter<IndexListAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Log.i("info", data.get(position).fragments().fetchGirls().img());
-        Picasso.with(context).load(data.get(position).fragments().fetchGirls().img()).into(holder.imageView);
+        String imgSrc = Utils.getRealSrcLink(data.get(position).fragments().fetchGirls().img());
+        Log.i("image", imgSrc);
+        Picasso.with(context).load(imgSrc).into(holder.imageView);
     }
 
     @Override

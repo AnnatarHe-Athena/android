@@ -26,6 +26,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ViewController.AuthActivity" />
+        <activity android:name=".ViewController.AboutActivity" />
     </application>
 
 

@@ -28,7 +28,7 @@ public class Config {
 
 //    private static String serverUrl = "https://api.dbg.annatarhe.com/graphql/v1";
     private static String serverUrl = BuildConfig.DEBUG ?
-            "http://192.168.0.100:9000/graphql/v1" :
+            "http://192.168.0.104:9000/graphql/v1" :
             "https://api.dbg.annatarhe.com/graphql/v1";
 
     public static ApolloClient getApolloClient() {

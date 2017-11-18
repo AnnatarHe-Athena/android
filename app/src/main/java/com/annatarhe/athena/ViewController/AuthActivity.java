@@ -36,6 +36,7 @@ public class AuthActivity extends AppCompatActivity {
 
         initAuthBtn();
     }
+
     private void initAuthBtn() {
         Button authBtn = (Button) findViewById(R.id.authBtn);
         final EditText email = (EditText) findViewById(R.id.auth_email);
