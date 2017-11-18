@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.Response;
 
 /**
@@ -35,13 +36,15 @@ public class Config {
 
         Log.i("token", Config.token);
 
-        OkHttpClient okHttp = new OkHttpClient.Builder().addNetworkInterceptor(new Interceptor() {
-            @Override
-            public Response intercept(Chain chain) throws IOException {
-                Log.i("token", Config.token);
-                return chain.proceed(chain.request().newBuilder().header("athena-token", Config.token).build());
-            }
-        }).build();
+        OkHttpClient okHttp = new OkHttpClient.Builder()
+                .addInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Request original = chain.request();
+                        Request request = original.newBuilder().header("athena-token", Config.token).build();
+                        return chain.proceed(request);
+                    }
+                }).build();
 
         return ApolloClient.builder()
                 .serverUrl(serverUrl)
