@@ -23,16 +23,24 @@ import com.annatarhe.athena.Adapter.IndexListAdapter;
 import com.annatarhe.athena.Model.Config;
 import com.annatarhe.athena.ViewController.AboutActivity;
 import com.annatarhe.athena.ViewController.AuthActivity;
-import com.annatarhe.athena.fragment.FetchGirls;
+import com.anntarhe.athena.FetchGirlsQuery;
+import com.anntarhe.athena.InitCategoriesQuery;
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -77,6 +85,7 @@ public class MainActivity extends AppCompatActivity
 
         this.loadCategories();
         this.setupOthers();
+
     }
 
     private void setupOthers() {
@@ -150,6 +159,7 @@ public class MainActivity extends AppCompatActivity
                         .from(currentCategory)
                         .take(20)
                         .offset((loadMore && cells != null) ? cells.size() :0)
+                        .hideOnly(false)
                         .build()
         ).enqueue(new ApolloCall.Callback<FetchGirlsQuery.Data>() {
             @Override
@@ -162,6 +172,7 @@ public class MainActivity extends AppCompatActivity
                 if (response.data().girls() == null) {
                     return;
                 }
+                Log.i("girls", response.data().girls().toString());
                 cells.addAll(response.data().girls());
                 final String sizeMessage = "loaded data: " +  Integer.toString(response.data().girls().size()) + "rows";
 
@@ -262,6 +273,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_camera:
                 break;
             case R.id.nav_gallery:
+                this.loadCategories();
                 break;
             case R.id.about_nav_btn:
                 Intent intent = new Intent(MainActivity.this, AboutActivity.class);

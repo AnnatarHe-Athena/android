@@ -29,7 +29,7 @@ public class Config {
 
 //    private static String serverUrl = "https://api.dbg.annatarhe.com/graphql/v1";
     private static String serverUrl = BuildConfig.DEBUG ?
-            "http://192.168.0.104:9000/graphql/v1" :
+            "http://192.168.111.185:9009/graphql/v1" :
             "https://api.dbg.annatarhe.com/graphql/v1";
 
     public static ApolloClient getApolloClient() {
@@ -41,7 +41,12 @@ public class Config {
                     @Override
                     public Response intercept(Chain chain) throws IOException {
                         Request original = chain.request();
-                        Request request = original.newBuilder().header("athena-token", Config.token).build();
+                        Request request = original.newBuilder()
+                                .removeHeader("content-type")
+                                .header("content-type", "application/json")
+                                .header("athena-token", Config.token)
+                                .build();
+                        Log.i("http", request.toString());
                         return chain.proceed(request);
                     }
                 }).build();

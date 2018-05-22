@@ -14,7 +14,7 @@ import android.widget.Toast;
 import com.annatarhe.athena.MainActivity;
 import com.annatarhe.athena.Model.Config;
 import com.annatarhe.athena.R;
-import com.annatarhe.athena.queries.AuthQuery;
+import com.anntarhe.athena.queries.AuthQuery;
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
@@ -59,7 +59,7 @@ public class AuthActivity extends AppCompatActivity {
                 }
 
 
-                Log.i("i", "send request to backend");
+                Log.i("i", "send request to backend: " + emailTxt.toString() + "   " + passwordTxt.toString());
 
                 Config.getApolloClient().query(
                         AuthQuery.builder().email(emailTxt).password(passwordTxt).build()
@@ -68,6 +68,7 @@ public class AuthActivity extends AppCompatActivity {
                     public void onResponse(@Nonnull Response<AuthQuery.Data> response) {
 
                         if (response.data().auth() == null) {
+                            Log.i("auth", response.data().toString());
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -94,6 +95,7 @@ public class AuthActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(@Nonnull ApolloException e) {
+                        Log.i("http", e.toString());
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
